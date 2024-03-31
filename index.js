@@ -408,6 +408,22 @@ client.on('messageCreate', async message => {
     }
 });
 
+    } else if (command === 'spam') {
+        // Vérifie que l'utilisateur a la permission de supprimer des messages
+        if (!message.member.permissions.has('MANAGE_MESSAGES')) {
+            return message.channel.send("Vous n'avez pas la permission de supprimer des messages.");
+        }
+
+        // Récupère le texte à spam
+        const textToSpam = args.join(' ');
+
+        // Envoie le texte 20 fois
+        for (let i = 0; i < 20; i++) {
+            message.channel.send(textToSpam);
+        }
+    }
+});
+
 async function login() {
   try {
     await client.login(process.env.TOKEN);
