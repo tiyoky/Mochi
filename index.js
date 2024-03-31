@@ -180,7 +180,7 @@ client.on('messageCreate', async message => {
             .setDescription(`Autres commandes`)
             .addField(`${prefix}create <nom> <emoji>`, 'créer L emojie choisi dans le message')
             .addField(`${prefix}giveaway <prix> <nombre gagnant> <temp> `, 'lance un giveaway')
-            .addField(`${prefix}setticket`, 'Crée un ticket pour contacter le staff ou réclamer une récompense.')
+            .addField(`${prefix}setticket`, 'Crée un systeme de ticket pour contacter le staff ou réclamer une récompense.')
             .addField(`${prefix}close`, 'Ferme le ticket actuel.')
             .setColor('#00FF00');
 
@@ -191,6 +191,7 @@ client.on('messageCreate', async message => {
             .addField(`${prefix}dog`, 'Affiche une image aléatoire de chien.')
             .addField(`${prefix}play <lien youtube>`, 'fais jouer de la musique dans la voc que vous êtes.')
             .addField(`${prefix}stop `, 'fais quitter le bot dans la voc que vous etes et enleve la musique.')
+            .addField(`${prefix}info`, 'info sur le dev')
             .addField(`${prefix}kissorkill`, 'pour le salon kiss or kill')
             .setColor('#0099ff');
 
@@ -375,6 +376,11 @@ client.on('messageCreate', async message => {
                 message.channel.send("Une erreur s'est produite lors du mute de l'utilisateur.");
             });
         }
+
+} else if (command === 'info') {
+        message.channel.send("Ce bot a été créé entièrement de A à Z par _tiyoky.");
+    }
+
 
     } else if (command === 'unmute') {
         // Vérifie que l'utilisateur a la permission de gérer les rôles
