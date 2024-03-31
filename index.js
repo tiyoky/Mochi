@@ -70,7 +70,7 @@ client.on('messageCreate', async message => {
                 .setTitle('Random Cat')
                 .setImage(imageUrl)
                 .setColor('#0099ff');
-            message.channel.send(embed);
+            message.channel.send({ embeds: [embed] });
         } catch (error) {
             console.error('Error fetching cat image:', error);
             message.channel.send("An error occurred while fetching the cat image.");
@@ -85,14 +85,14 @@ client.on('messageCreate', async message => {
                 .setTitle('Random Dog')
                 .setImage(imageUrl)
                 .setColor('#0099ff');
-            message.channel.send(embed);
+            message.channel.send({ embeds: [embed] });
         } catch (error) {
             console.error('Error fetching dog image:', error);
             message.channel.send("An error occurred while fetching the dog image.");
         }
 
     } else if (command === 'kissorkill') {
-        if (!message.member.hasPermission('MANAGE_GUILD')) {
+        if (!message.member.permissions.has('MANAGE_GUILD')) {
             return message.channel.send("Vous n'avez pas la permission de gérer le serveur.");
         }
 
@@ -109,7 +109,7 @@ client.on('messageCreate', async message => {
                     .setColor('#0099ff')
                     .setDescription('Réagissez avec 🔪 pour "Kill" ou 💋 pour "Kiss".');
 
-                message.channel.send(embed)
+                message.channel.send({ embeds: [embed] })
                     .then(sentMessage => {
                         sentMessage.react('🔪')
                             .then(() => sentMessage.react('💋'))
@@ -121,8 +121,6 @@ client.on('messageCreate', async message => {
                 console.error('Error fetching anime image:', error);
                 message.channel.send("Une erreur s'est produite lors de la récupération de l'image d'anime.");
             });
-        
-
     } else if (command === 'giveaway') {
         if (args.length !== 3) {
             return message.channel.send("Syntaxe incorrecte. Utilisation : `giveaway <prix> <nombre gagnant> <temp>`");
@@ -148,7 +146,7 @@ client.on('messageCreate', async message => {
             .setColor('#FFD700')
             .setFooter(`Temps restant : ${formatTime(duration * 60)}`);
 
-        const sentMessage = await message.channel.send(embed);
+        const sentMessage = await message.channel.send({ embeds: [embed] });
         sentMessage.react('⭐️');
 
         const filter = (reaction, user) => reaction.emoji.name === '⭐️' && !user.bot;
@@ -234,7 +232,7 @@ client.on('messageCreate', async message => {
 
     } else if (command === 'unban') {
         // Vérifie que l'utilisateur a la permission de débannir des membres
-        if (!message.member.hasPermission('BAN_MEMBERS')) {
+        if (!message.member.permissions.has('BAN_MEMBERS')) {
             return message.channel.send("Vous n'avez pas la permission de débannir des membres.");
         }
 
@@ -273,7 +271,7 @@ client.on('messageCreate', async message => {
 
     } else if (command === 'kick') {
         // Vérifie que l'utilisateur a la permission de kicker des membres
-        if (!message.member.hasPermission('KICK_MEMBERS')) {
+        if (!message.member.permissions.has('KICK_MEMBERS')) {
             return message.channel.send("Vous n'avez pas la permission de kicker des membres.");
         }
 
@@ -299,7 +297,7 @@ client.on('messageCreate', async message => {
 
     } else if (command === 'ban') {
         // Vérifie que l'utilisateur a la permission de bannir des membres
-        if (!message.member.hasPermission('BAN_MEMBERS')) {
+        if (!message.member.permissions.has('BAN_MEMBERS')) {
             return message.channel.send("Vous n'avez pas la permission de bannir des membres.");
         }
 
@@ -311,9 +309,9 @@ client.on('messageCreate', async message => {
                     .then(() => {
                         message.reply(`${user.tag} a été banni avec succès.`);
                     })
-                    .catch(error => {
-                        console.error('Erreur lors du bannissement:', error);
-                        message.channel.send("Une erreur s'est produite lors du bannissement de l'utilisateur.");
+                    .catch(err => {
+                        console.error('Erreur lors du ban:', err);
+                        message.channel.send("Une erreur s'est produite lors du ban de l'utilisateur.");
                     });
             } else {
                 message.channel.send("Cet utilisateur n'est pas sur le serveur.");
@@ -321,108 +319,161 @@ client.on('messageCreate', async message => {
         } else {
             message.channel.send("Merci de mentionner l'utilisateur à bannir.");
         }
-        
-    } else if (command === 'play') {
-        const voiceChannel = message.member.voice.channel;
-        if (!voiceChannel) {
-            return message.channel.send("Vous devez être dans un salon vocal pour utiliser cette commande.");
+
+    } else if (command === 'mute') {
+        // Vérifie que l'utilisateur a la permission de gérer les rôles
+        if (!message.member.permissions.has('MANAGE_ROLES')) {
+            return message.channel.send("Vous n'avez pas la permission de gérer les rôles.");
         }
 
-        const connection = await voiceChannel.join();
-        audioConnections.set(message.guild.id, connection);
+        const user = message.mentions.users.first();
+        if (!user) {
+            return message.channel.send("Merci de mentionner l'utilisateur à mute.");
+        }
+
+        let member = message.guild.members.cache.get(user.id);
+        if (!member) {
+            return message.channel.send("Cet utilisateur n'est pas sur le serveur.");
+        }
+
+        // Vérifie si l'utilisateur a déjà le rôle mute
+        const muteRole = message.guild.roles.cache.find(role => role.name === 'Muted');
+        if (!muteRole) {
+            return message.channel.send("Le rôle 'Muted' n'existe pas sur ce serveur.");
+        }
+
+        if (member.roles.cache.has(muteRole.id)) {
+            return message.channel.send("Cet utilisateur est déjà mute.");
+        }
+
+        const time = args[1];
+        if (!time) {
+            member.roles.add(muteRole).then(() => {
+                message.channel.send(`${user.tag} a été mute avec succès.`);
+            }).catch(err => {
+                console.error('Erreur lors du mute:', err);
+                message.channel.send("Une erreur s'est produite lors du mute de l'utilisateur.");
+            });
+        } else {
+            // Convertit le temps en millisecondes
+            let muteTime = parseDuration(time);
+            if (!muteTime) {
+                return message.channel.send("Le format de la durée est invalide. Exemple valide : `10m`, `1h`, `2d`.");
+            }
+
+            member.roles.add(muteRole).then(() => {
+                message.channel.send(`${user.tag} a été mute avec succès pour ${time}.`);
+
+                setTimeout(() => {
+                    member.roles.remove(muteRole).catch(err => {
+                        console.error('Erreur lors du retrait du rôle mute:', err);
+                        message.channel.send("Une erreur s'est produite lors du retrait du rôle mute.");
+                    });
+                }, muteTime);
+            }).catch(err => {
+                console.error('Erreur lors du mute:', err);
+                message.channel.send("Une erreur s'est produite lors du mute de l'utilisateur.");
+            });
+        }
+
+    } else if (command === 'unmute') {
+        // Vérifie que l'utilisateur a la permission de gérer les rôles
+        if (!message.member.permissions.has('MANAGE_ROLES')) {
+            return message.channel.send("Vous n'avez pas la permission de gérer les rôles.");
+        }
+
+        const user = message.mentions.users.first();
+        if (!user) {
+            return message.channel.send("Merci de mentionner l'utilisateur à unmute.");
+        }
+
+        let member = message.guild.members.cache.get(user.id);
+        if (!member) {
+            return message.channel.send("Cet utilisateur n'est pas sur le serveur.");
+        }
+
+        const muteRole = message.guild.roles.cache.find(role => role.name === 'Muted');
+        if (!muteRole) {
+            return message.channel.send("Le rôle 'Muted' n'existe pas sur ce serveur.");
+        }
+
+        if (!member.roles.cache.has(muteRole.id)) {
+            return message.channel.send("Cet utilisateur n'est pas mute.");
+        }
+
+        member.roles.remove(muteRole).then(() => {
+            message.channel.send(`${user.tag} a été unmute avec succès.`);
+        }).catch(err => {
+            console.error('Erreur lors de la suppression du rôle mute:', err);
+            message.channel.send("Une erreur s'est produite lors de la suppression du rôle mute.");
+        });
+
+    } else if (command === 'play') {
+        // Vérifie que l'utilisateur est dans un canal vocal
+        if (!message.member.voice.channel) {
+            return message.channel.send("Vous devez être dans un salon vocal pour jouer de la musique.");
+        }
 
         const url = args[0];
-        if (!url) {
-            return message.channel.send("Merci de spécifier un lien YouTube.");
+        if (!url || !ytdl.validateURL(url)) {
+            return message.channel.send("Merci de spécifier un lien YouTube valide.");
         }
 
-        try {
-            const stream = ytdl(url, { filter: 'audioonly' });
-            const dispatcher = connection.play(stream);
-
-            dispatcher.on('finish', () => {
-                voiceChannel.leave();
-                audioConnections.delete(message.guild.id);
-            });
-
-            message.channel.send(`Musique en cours de lecture depuis ${url}`);
-        } catch (error) {
-            console.error('Erreur lors de la lecture de la musique:', error);
-            message.channel.send("Une erreur s'est produite lors de la lecture de la musique.");
+        const connection = audioConnections.get(message.guild.id);
+        if (!connection) {
+            return message.channel.send("Le bot n'est pas connecté à un salon vocal.");
         }
+
+        const dispatcher = connection.play(ytdl(url));
+        dispatcher.on('finish', () => {
+            message.channel.send("Musique terminée.");
+        });
+
     } else if (command === 'stop') {
-        const voiceConnection = audioConnections.get(message.guild.id);
-        if (voiceConnection) {
-            voiceConnection.disconnect();
+        const connection = audioConnections.get(message.guild.id);
+        if (connection) {
+            connection.disconnect();
             audioConnections.delete(message.guild.id);
-            message.channel.send("Musique arrêtée et bot déconnecté du canal vocal.");
+            message.channel.send("Musique arrêtée et le bot a quitté le salon vocal.");
         } else {
-            message.channel.send("Je ne suis pas connecté à un salon vocal.");
+            message.channel.send("Le bot n'est pas connecté à un salon vocal.");
         }
+
     } else if (command === 'setticket') {
-        // Créer un embed pour le ticket
-        const embed = new Discord.MessageEmbed()
-            .setTitle('🌴 • (server) support')
-            .setDescription('Cliquez sur le bouton en dessous pour créer un ticket, pour contacter le staff ou réclamer une récompense.');
+        // Vérifie que l'utilisateur est le propriétaire du serveur
+        if (message.author.id !== ownerID) {
+            return message.channel.send("Vous n'avez pas la permission d'utiliser cette commande.");
+        }
 
-        // Créer un salon pour le ticket
-        message.guild.channels.create(`${message.author.username}-ticket`, {
-            type: 'text',
-            permissionOverwrites: [
-                {
-                    id: message.guild.id,
-                    deny: ['VIEW_CHANNEL']
-                },
-                {
-                    id: message.author.id,
-                    allow: ['VIEW_CHANNEL']
-                }
-            ]
-        })
-        .then(channel => {
-            // Envoyer l'embed dans le salon du ticket
-            channel.send({ embeds: [embed] })
-            .then(sentMessage => {
-                // Ajouter un bouton pour fermer le ticket
-                const closeTicketButton = new Discord.MessageButton()
-                    .setStyle('DANGER')
-                    .setLabel('Close Ticket')
-                    .setCustomId('closeTicket');
+        // Crée un salon de tickets
+        const category = message.guild.channels.cache.find(c => c.type === 'GUILD_CATEGORY' && c.name === 'Tickets');
+        if (!category) {
+            message.guild.channels.create('Tickets', { type: 'GUILD_CATEGORY' })
+                .then(category => {
+                    message.guild.channels.create('ticket-1', { type: 'GUILD_TEXT', parent: category.id })
+                        .then(ticketChannel => {
+                            ticketChannel.send("Ce salon est un salon de tickets. Utilisez la réaction 🎟️ pour créer un nouveau ticket.");
+                            ticketChannel.permissionOverwrites.edit(message.guild.roles.everyone, { VIEW_CHANNEL: false });
+                        });
+                });
+        } else {
+            message.guild.channels.create(`ticket-${category.children.size + 1}`, { type: 'GUILD_TEXT', parent: category.id })
+                .then(ticketChannel => {
+                    ticketChannel.send("Ce salon est un salon de tickets. Utilisez la réaction 🎟️ pour créer un nouveau ticket.");
+                    ticketChannel.permissionOverwrites.edit(message.guild.roles.everyone, { VIEW_CHANNEL: false });
+                });
+        }
 
-                const row = new Discord.MessageActionRow().addComponents(closeTicketButton);
-                sentMessage.channel.send({ content: 'React to close this ticket:', components: [row] });
-            })
-            .catch(err => console.error('Error sending message:', err));
-        })
-        .catch(err => console.error('Error creating channel:', err));
     } else if (command === 'close') {
-        // Vérifier si le message a été envoyé dans un salon de ticket
-        if (!message.channel.name.endsWith('-ticket')) {
-            return message.channel.send("Cette commande ne peut être utilisée que dans un salon de ticket.");
+        // Vérifie que l'utilisateur est dans un salon de tickets
+        if (!message.channel.name.startsWith('ticket-')) {
+            return message.channel.send("Cette commande ne peut être exécutée que dans un salon de tickets.");
         }
 
-        // Supprimer le salon de ticket
-        message.channel.delete()
-            .then(() => console.log(`Ticket channel ${message.channel.name} closed.`))
-            .catch(err => console.error('Error closing ticket:', err));
+        message.channel.delete();
     }
 });
 
-    } else if (command === 'spam') {
-        // Vérifie que l'utilisateur a la permission de supprimer des messages
-        if (!message.member.permissions.has('MANAGE_MESSAGES')) {
-            return message.channel.send("Vous n'avez pas la permission de supprimer des messages.");
-        }
-
-        // Récupère le texte à spam
-        const textToSpam = args.join(' ');
-
-        // Envoie le texte 20 fois
-        for (let i = 0; i < 20; i++) {
-            message.channel.send(textToSpam);
-        }
-    }
-});
 
 async function login() {
   try {
