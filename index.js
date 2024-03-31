@@ -194,6 +194,7 @@ client.on('messageCreate', async message => {
             .addField(`${prefix}play <lien youtube>`, 'fais jouer de la musique dans la voc que vous êtes.')
             .addField(`${prefix}stop `, 'fais quitter le bot dans la voc que vous etes et enleve la musique.')
             .addField(`${prefix}info`, 'info sur le dev')
+            .addField(`${prefix}mochibot`, 'comment avoir son bot perso')
             .addField(`${prefix}kissorkill`, 'pour le salon kiss or kill')
             .setColor('#0099ff');
 
@@ -383,7 +384,10 @@ client.on('messageCreate', async message => {
         message.channel.send("Ce bot a été créé entièrement de A à Z par _tiyoky.");
     }
 
-
+} else if (command === 'mochibot') {
+        message.channel.send("rejoint le serveur mochi bot et boost pour avoir ton propre bot perso");
+    }
+    
     } else if (command === 'unmute') {
         // Vérifie que l'utilisateur a la permission de gérer les rôles
         if (!message.member.permissions.has('MANAGE_ROLES')) {
