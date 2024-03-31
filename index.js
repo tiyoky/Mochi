@@ -173,6 +173,7 @@ client.on('messageCreate', async message => {
             .addField(`${prefix}ban <@utilisateur>`, 'Bannit l\'utilisateur mentionné.')
             .addField(`${prefix}unban <@id>`, 'deBannit l\'utilisateur avec son id.')
             .addField(`${prefix}mute <@utilisateur> <durée>`, 'Mute l\'utilisateur pour une durée spécifiée.')
+            .addField(`${prefix}unmute <@utilisateur> `, 'unMute l\'utilisateur ')
             .addField(`${prefix}kick <@utilisateur>`, 'Kick l\'utilisateur mentionné.')
             .setColor('#00FF00');
         
