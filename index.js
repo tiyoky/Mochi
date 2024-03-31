@@ -182,6 +182,8 @@ client.on('messageCreate', async message => {
             .setDescription(`Autres commandes`)
             .addField(`${prefix}create <nom> <emoji>`, 'créer L emojie choisi dans le message')
             .addField(`${prefix}giveaway <prix> <nombre gagnant> <temp> `, 'lance un giveaway')
+            .addField(`${prefix}setticket`, 'Crée un ticket pour contacter le staff ou réclamer une récompense.')
+            .addField(`${prefix}close`, 'Ferme le ticket actuel.')
             .setColor('#00FF00');
 
         const embed3 = new Discord.MessageEmbed()
@@ -357,6 +359,52 @@ client.on('messageCreate', async message => {
         } else {
             message.channel.send("Je ne suis pas connecté à un salon vocal.");
         }
+    } else if (command === 'setticket') {
+        // Créer un embed pour le ticket
+        const embed = new Discord.MessageEmbed()
+            .setTitle('🌴 • (server) support')
+            .setDescription('Cliquez sur le bouton en dessous pour créer un ticket, pour contacter le staff ou réclamer une récompense.');
+
+        // Créer un salon pour le ticket
+        message.guild.channels.create(`${message.author.username}-ticket`, {
+            type: 'text',
+            permissionOverwrites: [
+                {
+                    id: message.guild.id,
+                    deny: ['VIEW_CHANNEL']
+                },
+                {
+                    id: message.author.id,
+                    allow: ['VIEW_CHANNEL']
+                }
+            ]
+        })
+        .then(channel => {
+            // Envoyer l'embed dans le salon du ticket
+            channel.send({ embeds: [embed] })
+            .then(sentMessage => {
+                // Ajouter un bouton pour fermer le ticket
+                const closeTicketButton = new Discord.MessageButton()
+                    .setStyle('DANGER')
+                    .setLabel('Close Ticket')
+                    .setCustomId('closeTicket');
+
+                const row = new Discord.MessageActionRow().addComponents(closeTicketButton);
+                sentMessage.channel.send({ content: 'React to close this ticket:', components: [row] });
+            })
+            .catch(err => console.error('Error sending message:', err));
+        })
+        .catch(err => console.error('Error creating channel:', err));
+    } else if (command === 'close') {
+        // Vérifier si le message a été envoyé dans un salon de ticket
+        if (!message.channel.name.endsWith('-ticket')) {
+            return message.channel.send("Cette commande ne peut être utilisée que dans un salon de ticket.");
+        }
+
+        // Supprimer le salon de ticket
+        message.channel.delete()
+            .then(() => console.log(`Ticket channel ${message.channel.name} closed.`))
+            .catch(err => console.error('Error closing ticket:', err));
     }
 });
 
