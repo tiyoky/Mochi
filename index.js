@@ -385,37 +385,6 @@ client.on('messageCreate', async message => {
         message.channel.send("Ce bot a été créé entièrement de A à Z par _tiyoky.");
     }
     
-    } else if (command === 'unmute') {
-        // Vérifie que l'utilisateur a la permission de gérer les rôles
-        if (!message.member.permissions.has('MANAGE_ROLES')) {
-            return message.channel.send("Vous n'avez pas la permission de gérer les rôles.");
-        }
-
-        const user = message.mentions.users.first();
-        if (!user) {
-            return message.channel.send("Merci de mentionner l'utilisateur à unmute.");
-        }
-
-        let member = message.guild.members.cache.get(user.id);
-        if (!member) {
-            return message.channel.send("Cet utilisateur n'est pas sur le serveur.");
-        }
-
-        const muteRole = message.guild.roles.cache.find(role => role.name === 'Muted');
-        if (!muteRole) {
-            return message.channel.send("Le rôle 'Muted' n'existe pas sur ce serveur.");
-        }
-
-        if (!member.roles.cache.has(muteRole.id)) {
-            return message.channel.send("Cet utilisateur n'est pas mute.");
-        }
-
-        member.roles.remove(muteRole).then(() => {
-            message.channel.send(`${user.tag} a été unmute avec succès.`);
-        }).catch(err => {
-            console.error('Erreur lors de la suppression du rôle mute:', err);
-            message.channel.send("Une erreur s'est produite lors de la suppression du rôle mute.");
-        });
 
     } else if (command === 'play') {
         // Vérifie que l'utilisateur est dans un canal vocal
