@@ -386,37 +386,6 @@ client.on('messageCreate', async message => {
     }
     
 
-} else if (command === 'play') {
-        // Vérifie que l'utilisateur est dans un canal vocal
-        if (!message.member.voice.channel) {
-            return message.channel.send("Vous devez être dans un salon vocal pour jouer de la musique.");
-        }
-
-        const url = args[0];
-        if (!url || !ytdl.validateURL(url)) {
-            return message.channel.send("Merci de spécifier un lien YouTube valide.");
-        }
-
-        const connection = audioConnections.get(message.guild.id);
-        if (!connection) {
-            return message.channel.send("Le bot n'est pas connecté à un salon vocal.");
-        }
-
-        const dispatcher = connection.play(ytdl(url));
-        dispatcher.on('finish', () => {
-            message.channel.send("Musique terminée.");
-        });
-
-    } else if (command === 'stop') {
-        const connection = audioConnections.get(message.guild.id);
-        if (connection) {
-            connection.disconnect();
-            audioConnections.delete(message.guild.id);
-            message.channel.send("Musique arrêtée et le bot a quitté le salon vocal.");
-        } else {
-            message.channel.send("Le bot n'est pas connecté à un salon vocal.");
-        }
-
     } else if (command === 'setticket') {
         // Vérifie que l'utilisateur est le propriétaire du serveur
         if (message.author.id !== ownerID) {
