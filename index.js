@@ -44,7 +44,6 @@ client.on('messageCreate', async message => {
     const command = args.shift().toLowerCase();
 
     if (command === 'create') {
-        // Vérifie que l'utilisateur a envoyé un emoji
         if (!args.length || !args[0].match(/<:[a-zA-Z0-9]+:[0-9]+>/)) {
             return message.channel.send("Merci de spécifier un emoji valide.");
         }
@@ -52,7 +51,6 @@ client.on('messageCreate', async message => {
         const emojiName = args[0].split(':')[1];
         const emojiId = args[0].split(':')[2].slice(0, -1);
         
-        // Crée l'emoji dans le serveur
         message.guild.emojis.create(`https://cdn.discordapp.com/emojis/${emojiId}.png`, emojiName)
             .then(emoji => message.channel.send(`Emoji ${emoji} créé avec succès!`))
             .catch(error => {
@@ -96,13 +94,11 @@ client.on('messageCreate', async message => {
             return message.channel.send("Vous n'avez pas la permission de gérer le serveur.");
         }
 
-        // Récupérer une image d'anime aléatoire depuis l'API
         fetch('https://api.waifu.pics/sfw/kiss')
             .then(response => response.json())
             .then(data => {
                 const animeImageUrl = data.url;
 
-                // Envoyer l'image dans le salon
                 const embed = new Discord.MessageEmbed()
                     .setTitle('Kiss or Kill ?')
                     .setImage(animeImageUrl)
@@ -157,13 +153,18 @@ client.on('messageCreate', async message => {
             if (participants.length > 0) {
                 const winners = [];
                 for (let i = 0; i < winnersCount; i++) {
-                    const winnerIndex = Math.floor(Math.random() * participants.length);
-                    winners.push(client.users.cache.get(participants[winnerIndex]).toString());
-                    participants.splice(winnerIndex, 1);
+                    const randomIndex = Math.floor(Math.random() * participants.length);
+                    const winnerId = participants[randomIndex];
+                    if (!winners.includes(winnerId)) {
+                        winners.push(winnerId);
+                    } else {
+                        i--;
+                    }
                 }
-                message.channel.send(`🎉 Les gagnants du giveaway ${prize} sont : ${winners.join(', ')} ! 🎉`);
+                const winnerTags = winners.map(winnerId => `<@${winnerId}>`).join(', ');
+                message.channel.send(`🎉 Félicitations aux gagnants : ${winnerTags} ! 🎉`);
             } else {
-                message.channel.send(`❌ Aucun participant n'a réagi au giveaway "${prize}". ❌`);
+                message.channel.send("Aucun participant n'a réagi au giveaway.");
             }
         });
     } else if (command === 'help') {
