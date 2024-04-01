@@ -385,7 +385,7 @@ client.on('messageCreate', async message => {
     }
 
 } else if (command === 'mochibot') {
-    message.channel.send("rejoint le serveur mochi bot et boost pour avoir ton propre bot perso");
+        message.channel.send("rejoint le serveur mochi bot et boost pour avoir ton propre bot perso");
     }
 
     } else if (command === 'unmute') {
