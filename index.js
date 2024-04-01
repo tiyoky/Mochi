@@ -386,7 +386,7 @@ client.on('messageCreate', async message => {
     }
     
 
-    } else if (command === 'play') {
+} else if (command === 'play') {
         // Vérifie que l'utilisateur est dans un canal vocal
         if (!message.member.voice.channel) {
             return message.channel.send("Vous devez être dans un salon vocal pour jouer de la musique.");
