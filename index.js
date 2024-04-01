@@ -384,9 +384,10 @@ client.on('messageCreate', async message => {
         message.channel.send("Ce bot a été créé entièrement de A à Z par _tiyoky.");
     }
 
-    } else if (command === 'mochibot') {
-        message.channel.send("rejoint le serveur mochi bot et boost pour avoir ton propre bot perso");
-    
+} else if (command === 'mochibot') {
+    message.channel.send("rejoint le serveur mochi bot et boost pour avoir ton propre bot perso");
+}
+
     } else if (command === 'unmute') {
         // Vérifie que l'utilisateur a la permission de gérer les rôles
         if (!message.member.permissions.has('MANAGE_ROLES')) {
