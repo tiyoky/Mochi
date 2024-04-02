@@ -386,8 +386,7 @@ client.on('messageCreate', async message => {
     }
     
 
-    } else if (command === 'setticket') {
-        // Vérifie que l'utilisateur est le propriétaire du serveur
+} else if (command === 'setticket') {
         if (message.author.id !== ownerID) {
             return message.channel.send("Vous n'avez pas la permission d'utiliser cette commande.");
         }
