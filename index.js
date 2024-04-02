@@ -15,8 +15,6 @@ const { prefix, ownerID } = require('./config.json');
 const fetch = require('node-fetch');
 const ytdl = require('ytdl-core');
 
-// Map pour stocker les informations de connexion audio par serveur
-const audioConnections = new Map();
 
 client.once('ready', () => {
     console.log(`${client.user.tag} est maintenant en ligne!`);
