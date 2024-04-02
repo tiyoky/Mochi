@@ -384,7 +384,7 @@ client.on('messageCreate', async message => {
 } else if (command === 'info') {
         message.channel.send("Ce bot a été créé entièrement de A à Z par _tiyoky.");
     }
-
+});
 
 async function login() {
   try {
