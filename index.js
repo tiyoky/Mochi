@@ -409,6 +409,7 @@ client.on('messageCreate', async message => {
                     ticketChannel.permissionOverwrites.edit(message.guild.roles.everyone, { VIEW_CHANNEL: false });
                 });
         }
+    
 
     } else if (command === 'close') {
         // Vérifie que l'utilisateur est dans un salon de tickets
