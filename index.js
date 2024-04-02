@@ -384,43 +384,6 @@ client.on('messageCreate', async message => {
 } else if (command === 'info') {
         message.channel.send("Ce bot a été créé entièrement de A à Z par _tiyoky.");
     }
-    
-
-
-} else if (command === 'setticket') {
-    if (message.author.id !== ownerID) {
-        return message.channel.send("Vous n'avez pas la permission d'utiliser cette commande.");
-    }
-
-    // Crée un salon de tickets
-    const category = message.guild.channels.cache.find(c => c.type === 'GUILD_CATEGORY' && c.name === 'Tickets');
-    if (!category) {
-        message.guild.channels.create('Tickets', { type: 'GUILD_CATEGORY' })
-            .then(category => {
-                message.guild.channels.create('ticket-1', { type: 'GUILD_TEXT', parent: category.id })
-                    .then(ticketChannel => {
-                        ticketChannel.send("Ce salon est un salon de tickets. Utilisez la réaction 🎟️ pour créer un nouveau ticket.");
-                        ticketChannel.permissionOverwrites.edit(message.guild.roles.everyone, { VIEW_CHANNEL: false });
-                    });
-            });
-    } else {
-        message.guild.channels.create(`ticket-${category.children.size + 1}`, { type: 'GUILD_TEXT', parent: category.id })
-            .then(ticketChannel => {
-                ticketChannel.send("Ce salon est un salon de tickets. Utilisez la réaction 🎟️ pour créer un nouveau ticket.");
-                ticketChannel.permissionOverwrites.edit(message.guild.roles.everyone, { VIEW_CHANNEL: false });
-            });
-    }
-
-
-    } else if (command === 'close') {
-        // Vérifie que l'utilisateur est dans un salon de tickets
-        if (!message.channel.name.startsWith('ticket-')) {
-            return message.channel.send("Cette commande ne peut être exécutée que dans un salon de tickets.");
-        }
-
-        message.channel.delete();
-    }
-});
 
 
 async function login() {
